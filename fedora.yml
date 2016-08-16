@@ -1,0 +1,58 @@
+---
+
+- name: Build Standard Fedora Workstation
+  hosts: localhost
+  connection: local
+  become: true
+
+  tasks:
+    - name: Add Yum Chrome Repo
+      yum_repository:
+        name: google-chrome
+        description: google-chrome
+        baseurl: http://dl.google.com/linux/chrome/rpm/stable/x86_64
+        enabled: yes
+        gpgcheck: yes
+        gpgkey: https://dl.google.com/linux/linux_signing_key.pub
+        state: present
+
+    - name: Install Packages
+      dnf:
+        name: git,vim,tmux,whois,telnet
+        state: latest
+
+    - name: Update All Packages
+      dnf: name=* state=latest
+
+    - name: Git Clone powerbash
+      git:
+        repo: https://github.com/napalm255/powerbash.git
+        dest: /opt/git/powerbash
+
+    - name: Setup powerbash (link script)
+      file:
+        src: /opt/git/powerbash/powerbash.sh
+        dest: /etc/profile.d/z_powerbash.sh
+        state: link
+
+    - name: Git Clone powertmux
+      git:
+        repo: https://github.com/napalm255/powertmux.git
+        dest: /opt/git/powertmux
+
+    - name: Setup powertmux (link script)
+      file:
+        src: /opt/git/powertmux/powertmux.sh
+        dest: /etc/profile.d/powertmux.sh
+        state: link
+
+    - name: Setup powertmux (link tmux.conf)
+      file:
+        src: /opt/git/powertmux/tmux.conf
+        dest: /etc/tmux.conf
+        state: link
+
+    - name: Install python packages
+      pip:
+        name: pip virtualenv virtualenvwrapper
+        state: latest
