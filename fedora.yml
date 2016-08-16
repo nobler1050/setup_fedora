@@ -79,3 +79,8 @@
         dest: /home/{{ ansible_user }}/.bashrc
         line: source /usr/bin/virtualenvwrapper.sh
         state: present
+
+    - name: Download .vimrc from gist
+      get_url:
+        dest: /home/{{ ansible_user }}/.vimrc
+        url: https://gist.githubusercontent.com/napalm255/73128c2c33287ba4639983960debd295/raw/92bd956804a5c8ba6383799775695e8a4e1f2a77/.vimrc
