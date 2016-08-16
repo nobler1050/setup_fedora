@@ -8,7 +8,7 @@
   tasks:
     - name: Install Packages
       dnf:
-        name: git,vim,tmux,whois,telnet,nmap,htop
+        name: git,vim,tmux,whois,telnet,nmap,htop,remmina,remmina-plugins-rdp
         state: latest
 
     - name: Update All Packages
