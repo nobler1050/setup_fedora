@@ -6,6 +6,14 @@
   become: true
 
   tasks:
+    - name: Install Packages
+      dnf:
+        name: git,vim,tmux,whois,telnet,nmap,htop
+        state: latest
+
+    - name: Update All Packages
+      dnf: name=* state=latest
+
     - name: Create repo.d file for Google Chrome
       yum_repository:
         name: google-chrome
@@ -16,13 +24,10 @@
         gpgkey: https://dl.google.com/linux/linux_signing_key.pub
         state: present
 
-    - name: Install Packages
+    - name: Install Google Chrome
       dnf:
-        name: git,vim,tmux,whois,telnet
+        name: google-chrome
         state: latest
-
-    - name: Update All Packages
-      dnf: name=* state=latest
 
     - name: Git Clone powerbash
       git:
