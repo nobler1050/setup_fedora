@@ -6,7 +6,7 @@
   become: true
 
   tasks:
-    - name: Add Yum Chrome Repo
+    - name: Create repo.d file for Google Chrome
       yum_repository:
         name: google-chrome
         description: google-chrome
@@ -56,3 +56,21 @@
       pip:
         name: pip virtualenv virtualenvwrapper
         state: latest
+
+    - name: Add 'unset SSH_ASKPASS' to bashrc
+      lineinfile:
+        dest: /home/{{ ansible_user }}/.bashrc 
+        line: unset SSH_ASKPASS
+        state: present
+
+    - name: Add VirtualEnv variable to bashrc
+      lineinfile:
+        dest: /home/{{ ansible_user }}/.bashrc
+        line: export WORKON_HOME=~/.virtualenv
+        state: present
+
+    - name: Add VirtualEnvWrapper script to bashrc
+      lineinfile:
+        dest: /home/{{ ansible_user }}/.bashrc
+        line: source /usr/bin/virtualenvwrapper.sh
+        state: present
