@@ -12,15 +12,17 @@
         state: latest
 
     - name: Update All Packages
-      dnf: name=* state=latest
+      dnf:
+        name: "*"
+        state: latest
 
     - name: Create repo.d file for Google Chrome
       yum_repository:
         name: google-chrome
         description: google-chrome
         baseurl: http://dl.google.com/linux/chrome/rpm/stable/x86_64
-        enabled: yes
-        gpgcheck: yes
+        enabled: true
+        gpgcheck: true
         gpgkey: https://dl.google.com/linux/linux_signing_key.pub
         state: present
 
@@ -28,6 +30,15 @@
       dnf:
         name: google-chrome
         state: latest
+
+    - name: Install selinux python package
+      dnf:
+        name: libselinux-python
+        state: latest
+
+    - name: Disable selinux
+      selinux:
+        state: disabled
 
     - name: Git Clone powerbash
       git:
@@ -59,28 +70,49 @@
 
     - name: Install python packages
       pip:
-        name: pip virtualenv virtualenvwrapper
+        name: pip virtualenv virtualenvwrapper tldr pylint pydocstyle yamllint
         state: latest
+        extra_args: --user
+      become: false
+
+    - name: Setup pip config file
+      copy:
+        dest: "{{ ansible_user_dir }}/.config/pip/pip.conf"
+        content: |
+          [list]
+          format=columns
+      become: false
 
     - name: Add 'unset SSH_ASKPASS' to bashrc
       lineinfile:
-        dest: /home/{{ ansible_user }}/.bashrc 
+        dest: "{{ ansible_user_dir }}/.bashrc"
         line: unset SSH_ASKPASS
         state: present
 
+    - name: Add aliases to bashrc
+      lineinfile:
+        dest: "{{ ansible_user_dir }}/.bashrc"
+        line: "{{ item }}"
+        state: present
+      with_items:
+        - alias vpnlogin='firefox https://remote.promnetwork.com >> ~/sshtunnel.log 2>&1 &'
+        - alias vpnstatus='/usr/bin/systemctl --user status sshtunnel.service'
+        - alias vpnconnect='/usr/bin/systemctl --user restart sshtunnel.service'
+        - alias vpndisconnect='/usr/bin/systemctl --user stop sshtunnel.service'
+
     - name: Add VirtualEnv variable to bashrc
       lineinfile:
-        dest: /home/{{ ansible_user }}/.bashrc
+        dest: "{{ ansible_user_dir }}/.bashrc"
         line: export WORKON_HOME=~/.virtualenv
         state: present
 
     - name: Add VirtualEnvWrapper script to bashrc
       lineinfile:
-        dest: /home/{{ ansible_user }}/.bashrc
+        dest: "{{ ansible_user_dir }}/.bashrc"
         line: source /usr/bin/virtualenvwrapper.sh
         state: present
 
     - name: Download .vimrc from gist
       get_url:
-        dest: /home/{{ ansible_user }}/.vimrc
-        url: https://gist.githubusercontent.com/napalm255/73128c2c33287ba4639983960debd295/raw/92bd956804a5c8ba6383799775695e8a4e1f2a77/.vimrc
+        dest: "{{ ansible_user_dir }}/.vimrc"
+        url: https://gist.githubusercontent.com/nobler1050/aa74a563d2c0f67fef9a437b413ada2b/raw/.vimrc
